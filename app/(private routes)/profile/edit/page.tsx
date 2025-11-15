@@ -1,57 +1,104 @@
-import Link from "next/link";
+"use client";
+
+import { getMe, updateMe } from "@/lib/api/clientApi";
+import css from "./EditProfilePage.module.css";
 import Image from "next/image";
-import css from "./ProfilePage.module.css";
-import { Metadata } from "next";
-import { SITE_URL, NOTE_IMAGE_URL } from "@/lib/constants";
-import { getMe } from "@/lib/api/serverApi";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export const metadata: Metadata = {
-  title: "User Profile",
-  description: "User profile information",
-  openGraph: {
-    title: "User Profile",
-    description: "View your personal profile",
-    url: `${SITE_URL}/profile`,
-    siteName: "NoteHub",
-    images: [
-      {
-        url: NOTE_IMAGE_URL,
-        width: 1200,
-        height: 630,
-        alt: "NoteHub Preview Image",
-      },
-    ],
-  },
-};
+import { isAxiosError } from "axios";
+import { User } from "@/types/user";
+import { useAuthStore } from "@/lib/store/authStore";
 
-export default async function UserProfile() {
-  const user = await getMe();
+export default function EditProfile() {
+  const [userEdit, setUserEdit] = useState<User | null>(null);
+  const router = useRouter();
+  const setUser = useAuthStore((state) => state.setUser);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const data = await getMe();
+        if (data) setUserEdit(data);
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (formData: FormData) => {
+    try {
+      const username = formData.get("username") as string;
+
+      if (!userEdit?.email) return;
+
+      const updatedUser = await updateMe({
+        email: userEdit?.email,
+        username: username,
+      });
+
+      setUser(updatedUser);
+      router.push("/profile");
+    } catch (error) {
+      if (isAxiosError(error) && error.response) {
+        setError(error.response.data.message);
+      } else {
+        setError("An unexpected error occurred");
+      }
+    }
+  };
+
+  const handleCancel = () => router.push("/profile");
 
   return (
     <main className={css.mainContent}>
       <div className={css.profileCard}>
-        <div className={css.header}>
-          <h1 className={css.formTitle}>Profile Page</h1>
+        <h1 className={css.formTitle}>Edit Profile</h1>
 
-          <Link href="/profile/edit" className={css.editProfileButton}>
-            Edit Profile
-          </Link>
-        </div>
-
-        <div className={css.avatarWrapper}>
+        {userEdit?.avatar && (
           <Image
-            src={user.avatar || "/default-avatar.png"}
+            src={userEdit.avatar}
             alt="User Avatar"
             width={120}
             height={120}
             className={css.avatar}
           />
-        </div>
+        )}
 
-        <div className={css.profileInfo}>
-          <p>Username: {user.username}</p>
-          <p>Email: {user.email}</p>
-        </div>
+        <form className={css.profileInfo} action={handleSubmit}>
+          <div className={css.usernameWrapper}>
+            <label htmlFor="username">Username:</label>
+            <input
+              name="username"
+              id="username"
+              type="text"
+              className={css.input}
+              defaultValue={userEdit?.username}
+            />
+          </div>
+
+          <p className={css.email}>Email: {userEdit?.email}</p>
+
+          {error && <p className={css.error}>{error}</p>}
+
+          <div className={css.actions}>
+            <button type="submit" className={css.saveButton}>
+              Save
+            </button>
+
+            <button
+              type="button"
+              onClick={handleCancel}
+              className={css.cancelButton}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
     </main>
   );

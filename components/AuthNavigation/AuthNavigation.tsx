@@ -1,14 +1,12 @@
 "use client";
 import Link from "next/link";
 import css from "./AuthNavigation.module.css";
-import { ALL_NOTES_FILTER } from "@/lib/constants";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/lib/store/authStore";
 import { logout } from "@/lib/api/clientApi";
 
 export default function AuthNavigation() {
-  const pathname = usePathname();
   const router = useRouter();
 
   const user = useAuthStore((state) => state.user);
@@ -70,7 +68,7 @@ export default function AuthNavigation() {
             <Link href="/">Home</Link>
           </li>
           <li>
-            <Link href={`/notes/filter/${ALL_NOTES_FILTER}`}>Notes</Link>
+            <Link href="/notes/filter/all">Notes</Link>
           </li>
           <li className={css.navigationItem}>
             <Link

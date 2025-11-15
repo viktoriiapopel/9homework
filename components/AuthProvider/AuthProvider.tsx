@@ -10,25 +10,29 @@ type Props = {
   children: React.ReactNode;
 };
 
-const AuthProvider = ({ children }: Props) => {
-  // 1. перевірка сессії (сессія + отримання користувача) на клієнті для того, щоб мати актуальний стан аутентифікації для подальшого відображення потрібного інтерфейсу.
-
+export default function AuthProvider({ children }: Props) {
   const setUser = useAuthStore((state) => state.setUser);
+  const clearIsAuthenticated = useAuthStore(
+    (state) => state.clearIsAuthenticated
+  );
 
   useEffect(() => {
-    const asyncWrapper = async () => {
-      const isSuccessSession = await checkSession();
-      if (isSuccessSession) {
-        const user = await getMe();
-        setUser(user);
+    const getUser = async () => {
+      try {
+        const isAuthenticated = await checkSession();
+
+        if (isAuthenticated) {
+          const user = await getMe();
+          if (user) setUser(user);
+        } else {
+          clearIsAuthenticated();
+        }
+      } catch {
+        clearIsAuthenticated();
       }
     };
-    asyncWrapper();
-  }, [setUser]);
+    void getUser();
+  }, [setUser, clearIsAuthenticated]);
 
-  // стан isRefreshing ???
-  return <>{children}</>;
-  // return children;
-};
-
-export default AuthProvider;
+  return children;
+}

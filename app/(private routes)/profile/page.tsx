@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "User Profile",
     description: "View your personal profile",
-    url: `${SITE_URL}/profile`,
+    url: SITE_URL + "/profile",
     siteName: "NoteHub",
     images: [
       {
@@ -39,18 +39,20 @@ export default async function UserProfile() {
         </div>
 
         <div className={css.avatarWrapper}>
-          <Image
-            src={user.avatar || "/default-avatar.png"}
-            alt="User Avatar"
-            width={120}
-            height={120}
-            className={css.avatar}
-          />
+          {user.avatar && (
+            <Image
+              src={user.avatar}
+              alt="User Avatar"
+              width={120}
+              height={120}
+              className={css.avatar}
+            />
+          )}
         </div>
 
         <div className={css.profileInfo}>
-          <p>Username: {user.username}</p>
-          <p>Email: {user.email}</p>
+          <p>Username: {user?.username}</p>
+          <p>Email: {user?.email}</p>
         </div>
       </div>
     </main>

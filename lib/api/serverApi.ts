@@ -1,13 +1,6 @@
 import type { Note } from "../../types/note";
-import {
-  FetchNotesParams,
-  FetchNotesResponse,
-  NoteListType,
-  CheckSession,
-} from "./api";
-import { api } from "../../app/api/api";
+import { nextServer, FetchNotesResponse, CheckSession } from "./api";
 import { User } from "@/types/user";
-import { AxiosResponse } from "axios";
 import { cookies } from "next/headers";
 
 export async function getAuthCookies() {
@@ -36,7 +29,7 @@ export const fetchNotes = async ({
   const Cookie = await getAuthCookies();
 
   console.log("fetchNotes params:", params);
-  const { data } = await api.get<FetchNotesResponse>("/notes", {
+  const { data } = await nextServer.get<FetchNotesResponse>("/notes", {
     params,
     headers: { Cookie },
   });
@@ -45,7 +38,7 @@ export const fetchNotes = async ({
 
 export const fetchNoteById = async (id: string): Promise<Note> => {
   const Cookie = await getAuthCookies();
-  const res = await api.get<Note>(`/notes/${id}`, {
+  const res = await nextServer.get<Note>(`/notes/${id}`, {
     headers: { Cookie },
   });
   return res.data;
@@ -53,34 +46,16 @@ export const fetchNoteById = async (id: string): Promise<Note> => {
 
 export const getMe = async () => {
   const Cookie = await getAuthCookies();
-  const { data } = await api.get<User>("users/me", {
+  const { data } = await nextServer.get<User>(`users/me`, {
     headers: { Cookie },
   });
   return data;
 };
 
-// export const checkSession = async () => {
-//   const { data } = await api.get<CheckSession>("/auth/session");
-//   return data.success;
-// };
-export const checkSession = async (): Promise<AxiosResponse | undefined> => {
+export const checkSession = async () => {
   const Cookie = await getAuthCookies();
-  try {
-    const response = await api.get("/auth/session", {
-      headers: { Cookie },
-    });
-    console.log("✅ checkSession response:", response.status, response.data);
-    return response;
-  } catch (error: any) {
-    console.log(
-      "❌ checkSession error:",
-      error.response?.status,
-      error.response?.data
-    );
-    if (error.response) {
-      return error.response as AxiosResponse;
-    }
-    console.error("checkSession error:", error);
-    return undefined; // ✅ замість кидання необробленої помилки
-  }
+  const res = await nextServer.get<CheckSession>("/auth/session", {
+    headers: { Cookie },
+  });
+  return res;
 };
