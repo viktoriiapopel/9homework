@@ -14,6 +14,17 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
 
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "ac.goit.global",
+        port: "",
+        pathname: "**",
+      },
+    ],
+  },
+
   // 🔹 Інші налаштування Next.js можна додати тут
 };
 
