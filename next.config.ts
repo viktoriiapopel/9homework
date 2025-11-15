@@ -1,11 +1,28 @@
-import type { NextConfig } from "next";
+// import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  /* config options here */
-  reactCompiler: true,
+// const nextConfig: NextConfig = {
+//   /* config options here */
+// };
+
+// export default nextConfig;
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+
+  // 🔹 Тимчасово ігноруємо ESLint під час build (Vercel)
+
   images: {
-    remotePatterns: [{ hostname: "ac.goit.global" }],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "ac.goit.global",
+        port: "",
+        pathname: "**",
+      },
+    ],
   },
+
+  // 🔹 Інші налаштування Next.js можна додати тут
 };
 
-export default nextConfig;
+module.exports = nextConfig;

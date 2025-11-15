@@ -28,6 +28,10 @@ export default function EditProfile() {
     fetchUser();
   }, []);
 
+  const handleCancel = () => {
+    router.push("/profile");
+  };
+
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (formData: FormData) => {
@@ -51,8 +55,6 @@ export default function EditProfile() {
       }
     }
   };
-
-  const handleCancel = () => router.push("/profile");
 
   return (
     <main className={css.mainContent}>

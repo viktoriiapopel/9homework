@@ -75,12 +75,12 @@ export const logout = async () => {
 };
 
 export const getMe = async () => {
-  const { data } = await nextServer.get<User>("/users/me");
+  const { data } = await nextServer.get<User>(`/users/me`);
   return data;
 };
 
 export const checkSession = async () => {
-  const res = await nextServer.get<CheckSession>("/auth/session");
+  const res = await nextServer.get<CheckSession>(`/auth/session`);
   return res.data.success;
 };
 export const updateMe = async (updateData: UpdateUserData) => {
